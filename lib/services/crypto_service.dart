@@ -29,4 +29,29 @@ class CryptoService {
       throw Exception('Error al cargar detalle de la cripto');
     }
   }
+
+  Future<Map<String, double>> getCurrentPricesByIds(List<String> ids) async {
+    if (ids.isEmpty) return {};
+
+    final idsParam = ids.toSet().join(',');
+
+    final url = Uri.parse(
+      '$baseUrl/simple/price?ids=$idsParam&vs_currencies=usd',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      return data.map((key, value) {
+        return MapEntry(
+          key,
+          (value['usd'] as num).toDouble(),
+        );
+      });
+    } else {
+      throw Exception('Error al obtener precios actuales');
+    }
+  }
 }
